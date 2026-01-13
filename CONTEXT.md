@@ -3,7 +3,7 @@
 **Date**: 2026-01-13
 **Repository**: https://github.com/imad-collab/ptv_transit
 **Branch**: main
-**Last Commit**: `b312bec` - "Phase 2: Graph Construction Complete ✅"
+**Last Commit**: `627f366` - "Phase 3: Single-Mode Routing Complete ✅"
 
 ---
 
@@ -31,12 +31,20 @@ You are building a **PTV Transit Assistant** - a journey planner for Melbourne's
    - Transfer edge support
    - Query methods for graph exploration
 
+4. **Phase 3: Single-Mode Routing** (100% complete, 41 tests, 98% coverage)
+   - Connection Scan Algorithm (CSA) implementation
+   - Journey planning with optimal routes
+   - Journey and Leg dataclasses
+   - Time-based constraints and formatting
+   - Successfully answered: "How do I get from Tarneit to Waurn Ponds at 2 PM?"
+
 ### What's Next ⏳
 
-**Phase 3: Single-Mode Routing** - Implement Connection Scan Algorithm (CSA)
-- Find optimal journeys between stations
-- Support departure/arrival time constraints
-- Journey result formatting
+**Phase 4: Multi-Modal Routing** - Support multiple transport modes
+- Handle trains, trams, and buses
+- Transfer handling between modes
+- Walking connections
+- Multi-criteria optimization
 - Target: 95%+ test coverage
 
 ---
@@ -50,13 +58,14 @@ PTV_Assistant-main/
 │   ├── data/           ✅ Complete - GTFS parser, models, stop index
 │   ├── realtime/       ✅ Complete - Feed fetcher
 │   ├── graph/          ✅ Complete - Transit graph with NetworkX
-│   ├── routing/        ⏳ Empty - Next phase
+│   ├── routing/        ✅ Complete - Journey planner with CSA
 │   ├── api/            ⏳ Empty - Future phase
 │   └── cli/            ⏳ Empty - Future phase
 ├── tests/
 │   ├── test_data/      ✅ 62 tests
 │   ├── test_realtime/  ✅ 21 tests
-│   └── test_graph/     ✅ 36 tests
+│   ├── test_graph/     ✅ 36 tests
+│   └── test_routing/   ✅ 41 tests
 ├── data/
 │   └── gtfs/           ✅ V/Line data extracted (497 stops, 13 routes, 8,096 trips)
 └── docs/               ✅ Documentation files
@@ -70,11 +79,14 @@ PTV_Assistant-main/
 - `src/data/stop_index.py` - Fast stop lookup with fuzzy matching
 - `src/realtime/feed_fetcher.py` - Real-time feed fetcher
 - `src/graph/transit_graph.py` - Transit network graph with NetworkX
+- `src/routing/journey_planner.py` - Journey planner using CSA
+- `src/routing/models.py` - Journey and Leg dataclasses
 
 **Tests:**
 - `tests/test_data/` - 62 tests for Phase 1
 - `tests/test_realtime/` - 21 tests for Phase 0
 - `tests/test_graph/` - 36 tests for Phase 2
+- `tests/test_routing/` - 41 tests for Phase 3
 - `tests/test_data/fixtures/` - Sample GTFS CSV files
 
 **Documentation:**
@@ -95,7 +107,8 @@ PTV_Assistant-main/
 | Phase 0: Realtime | 21 | 100% | ✅ Complete |
 | Phase 1: Data Layer | 62 | 97% | ✅ Complete |
 | Phase 2: Graph | 36 | 95% | ✅ Complete |
-| **Total** | **119** | **97%** | **3/8 phases done** |
+| Phase 3: Routing | 41 | 98% | ✅ Complete |
+| **Total** | **160** | **97%** | **4/8 phases done** |
 
 Run tests:
 ```bash
@@ -149,6 +162,7 @@ pytest --cov=src --cov-report=term-missing  # With coverage
 
 ### Recent Commits
 ```
+627f366 Phase 3: Single-Mode Routing Complete ✅
 b312bec Phase 2: Graph Construction Complete ✅
 3b6f11d Add CONTEXT.md for easy session resumption
 7ed43a6 Update project documentation with Phase 1 completion status
@@ -212,26 +226,25 @@ pip install -r requirements.txt
 3. **Run tests**: `pytest` to verify everything works
 4. **Review**: `DEVELOPMENT_STATUS.md` for detailed progress
 
-### Next Steps - Phase 3: Single-Mode Routing
+### Next Steps - Phase 4: Multi-Modal Routing
 
-**Goal**: Implement Connection Scan Algorithm (CSA) to find optimal journeys
+**Goal**: Extend routing to support multiple transport modes (trains, trams, buses)
 
 **Tasks**:
-1. Create `src/routing/journey_planner.py`
-2. Implement `JourneyPlanner` class:
-   - Connection Scan Algorithm (CSA) for route finding
-   - Support departure time constraints
-   - Support arrival time constraints
-   - Find earliest arrival journeys
-3. Implement `Journey` and `Leg` dataclasses for results
-4. Write comprehensive tests in `tests/test_routing/`
-5. Target: 95%+ test coverage
-6. Commit and push to GitHub
+1. Extend `JourneyPlanner` to handle multiple modes
+2. Implement transfer handling between different modes
+3. Add walking connections between nearby stops
+4. Implement multi-criteria optimization (minimize time, transfers, walking)
+5. Extract full PTV GTFS data (metro, tram, bus)
+6. Write comprehensive tests in `tests/test_routing/`
+7. Target: 95%+ test coverage
+8. Commit and push to GitHub
 
 **Success Criteria**:
-- Can answer: "How do I get from Tarneit to Waurn Ponds at 2 PM?"
-- Returns journey with: departure time, arrival time, transfers, route details
-- Handles edge cases (no route, same origin/destination)
+- Can answer: "How do I get from Flinders Street to St Kilda using train and tram?"
+- Returns multi-modal journey with transfers
+- Handles walking connections
+- Optimizes for multiple criteria
 - All tests passing
 
 ### Common Commands
@@ -321,7 +334,8 @@ A journey planner that answers queries like:
 - ✅ Can parse GTFS data
 - ✅ Can find stations by name
 - ✅ Can list all trips between two stations
-- ❌ Cannot find optimal routes yet (Phase 3)
+- ✅ Can find optimal routes (Phase 3 complete!)
+- ❌ Cannot handle multi-modal journeys yet (Phase 4)
 - ❌ Cannot apply real-time delays yet (Phase 5)
 
 ---
@@ -339,10 +353,10 @@ A journey planner that answers queries like:
 
 - [ ] Read this CONTEXT.md file
 - [ ] Check git status and recent commits
-- [ ] Run `pytest` to verify tests pass
+- [ ] Run `pytest` to verify tests pass (should be 160 tests passing)
 - [ ] Review DEVELOPMENT_STATUS.md
-- [ ] Decide: Continue with Phase 2 or work on something else?
-- [ ] If Phase 2: Install NetworkX and create transit_graph.py
+- [ ] Decide: Continue with Phase 4 or work on something else?
+- [ ] If Phase 4: Extract full GTFS data and extend routing for multi-modal
 - [ ] Commit and push all work before ending session
 
 ---
@@ -350,5 +364,5 @@ A journey planner that answers queries like:
 **This file captures everything you need to resume work. Read it at the start of your next session!**
 
 **Last Updated**: 2026-01-13
-**Next Phase**: Phase 3 - Single-Mode Routing (CSA Algorithm)
-**Status**: Ready to continue! 🚀
+**Next Phase**: Phase 4 - Multi-Modal Routing
+**Status**: Phase 3 complete! Ready for Phase 4! 🚀

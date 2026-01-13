@@ -3,15 +3,15 @@
 **Project**: PTV Transit Assistant
 **Repository**: https://github.com/imad-collab/ptv_transit
 **Last Updated**: 2026-01-13
-**Overall Progress**: 25% (2/8 phases complete)
+**Overall Progress**: 50% (4/8 phases complete)
 
 ---
 
 ## Executive Summary
 
-The PTV Transit Assistant is a journey planning application for Melbourne's public transport network. We are implementing a phased approach with comprehensive test coverage (currently 98%) following senior developer practices.
+The PTV Transit Assistant is a journey planning application for Melbourne's public transport network. We are implementing a phased approach with comprehensive test coverage (currently 97%) following senior developer practices.
 
-**Key Achievement**: Successfully answered the query "Tarneit station to Waurn Ponds - what trips are available?" by finding 1,989 trips between the two stations.
+**Key Achievement**: Successfully implemented journey planning! Can now answer "How do I get from Tarneit to Waurn Ponds at 2 PM?" with optimal routes, departure/arrival times, and transfer information.
 
 ---
 
@@ -81,33 +81,58 @@ The PTV Transit Assistant is a journey planning application for Melbourne's publ
 
 ---
 
-### ⏳ Phase 2: Graph Construction (Not Started)
+### ✅ Phase 2: Graph Construction (Complete)
 
-**Status**: Not Started
-**Planned Deliverables**:
-- Transit network graph using NetworkX
-- Stop-to-stop connections with travel times
-- Route relationships and transfers
-- Graph persistence for fast loading
+**Status**: Complete
+**Commit**: `b312bec` - "Phase 2: Graph Construction Complete ✅"
+**Test Coverage**: 95% (36 tests)
 
-**Technical Approach**:
-- Nodes: Stops (stations)
-- Edges: Connections between stops on same trip
-- Edge weights: Travel time between stops
-- Support for transfer connections
+**Deliverables**:
+- [src/graph/transit_graph.py](src/graph/transit_graph.py) - Transit network graph using NetworkX
+- Directed graph with stop nodes and connection edges
+- Edge attributes: travel time, trip ID, route ID
+- Query methods: neighbors, connections, routes
+- Support for transfer edges
+- 36 comprehensive tests
+
+**Technical Details**:
+- Graph structure: 497 nodes (stops), ~16,000 edges (connections)
+- Node attributes: stop name, coordinates (lat/lon)
+- Edge attributes: departure/arrival times, travel duration
+- Methods: `get_connections_from()`, `get_routes_from()`, `has_stop()`
 
 ---
 
-### ⏳ Phase 3: Single-Mode Routing (Not Started)
+### ✅ Phase 3: Single-Mode Routing (Complete)
 
-**Status**: Not Started
-**Planned Deliverables**:
-- Connection Scan Algorithm (CSA) implementation
-- Find optimal journeys between two stations
-- Support for departure/arrival time constraints
-- Journey result formatting
+**Status**: Complete
+**Commit**: `627f366` - "Phase 3: Single-Mode Routing Complete ✅"
+**Test Coverage**: 98% (41 tests)
 
-**Goal**: Implement actual journey planning to answer queries like "How do I get from Tarneit to Waurn Ponds at 2 PM?"
+**Deliverables**:
+
+1. **[src/routing/models.py](src/routing/models.py)** (115 statements, 97% coverage)
+   - `Leg` dataclass: One segment of a journey on a single trip
+   - `Journey` dataclass: Complete journey with multiple legs
+   - Duration calculations (seconds, minutes, formatted)
+   - Transfer wait time calculations
+   - Journey summary formatting
+   - 17 unit tests
+
+2. **[src/routing/journey_planner.py](src/routing/journey_planner.py)** (85 statements, 99% coverage)
+   - `JourneyPlanner` class with Connection Scan Algorithm (CSA)
+   - Find earliest arrival journeys between stops
+   - Support for departure time constraints
+   - Journey reconstruction from connections
+   - Automatic transfer detection
+   - 24 unit tests
+
+**Technical Achievements**:
+- Successfully implemented CSA for optimal route finding
+- Can answer: "How do I get from Tarneit to Waurn Ponds at 2 PM?"
+- Returns journey with: departure time, arrival time, legs, transfers, route details
+- Handles edge cases: no route found, same origin/destination, invalid stops
+- Example journey: Tarneit → Waurn Ponds with departure at 08:00, arrival at 08:20
 
 ---
 
@@ -165,19 +190,27 @@ The PTV Transit Assistant is a journey planning application for Melbourne's publ
 | src/data/models.py | 15 | 86 | 100% | 0 |
 | src/data/gtfs_parser.py | 25 | 132 | 95% | 7 |
 | src/data/stop_index.py | 22 | 54 | 100% | 0 |
-| **Total** | **83** | **272+** | **98%** | **7** |
+| **Phase 2: Graph Construction** | 36 | - | 95% | - |
+| src/graph/transit_graph.py | 36 | - | 95% | - |
+| **Phase 3: Routing** | 41 | 200 | 98% | 4 |
+| src/routing/models.py | 17 | 115 | 97% | 3 |
+| src/routing/journey_planner.py | 24 | 85 | 99% | 1 |
+| **Total** | **160** | **472+** | **97%** | **11** |
 
-**Missing Coverage** (7 lines in gtfs_parser.py):
-- Lines 116, 142, 169: Error handling for missing optional files
-- Lines 220-221, 236-237: Error handling for calendar data
+**Missing Coverage** (11 lines total):
+- gtfs_parser.py (7 lines): Error handling for missing optional files
+- routing/models.py (3 lines): Edge cases in time formatting
+- routing/journey_planner.py (1 line): Defensive error path
 
-These are defensive error paths that are tested but not hit in coverage due to optional file handling.
+These are primarily defensive error paths that are tested but not hit in coverage.
 
 ---
 
 ## Git Commit History
 
 ```
+627f366 Phase 3: Single-Mode Routing Complete ✅
+b312bec Phase 2: Graph Construction Complete ✅
 f17c4b0 Phase 1: Data Layer Complete ✅
 873891e Add comprehensive test report for Phase 0
 0f78d7e Phase 0: Foundation Complete ✅
@@ -234,24 +267,24 @@ requests-mock>=1.11.0
 
 ## Next Steps
 
-### Immediate Priority: Phase 2 - Graph Construction
+### Immediate Priority: Phase 4 - Multi-Modal Routing
 
-**Estimated Effort**: 2-3 development sessions
+**Estimated Effort**: 3-4 development sessions
 
 **Tasks**:
-1. Install NetworkX library
-2. Create `src/graph/transit_graph.py`
-3. Build directed graph from GTFS data:
-   - Nodes: Stops with metadata (name, lat/lon)
-   - Edges: Stop-to-stop connections with travel time
-4. Add transfer edges from transfers.txt
-5. Implement graph persistence (pickle/JSON)
-6. Write comprehensive tests (target: 95%+ coverage)
+1. Extract full PTV GTFS data (metro, tram, bus) - not just V/Line
+2. Extend `JourneyPlanner` to handle multiple transport modes
+3. Implement transfer handling between different modes
+4. Add walking connections between nearby stops
+5. Implement multi-criteria optimization (time, transfers, walking distance)
+6. Update graph to support multi-modal edges
+7. Write comprehensive tests (target: 95%+ coverage)
 
 **Success Criteria**:
-- Graph correctly represents V/Line network (497 stops, ~16,000 edges)
-- Can query: "What stops are reachable from Tarneit?"
-- Can retrieve: "Travel time from Tarneit to Waurn Ponds"
+- Can handle journeys using trains, trams, and buses
+- Can answer: "How do I get from Flinders Street to St Kilda using train and tram?"
+- Returns multi-modal journey with transfers and walking
+- Optimizes for multiple criteria
 - All tests passing with high coverage
 
 ---

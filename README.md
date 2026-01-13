@@ -4,9 +4,9 @@ A Python-based multi-modal journey planner for Melbourne's public transport netw
 
 ## 🚀 Project Status
 
-**Current Phase**: Phase 2 Complete ✅
-**Next Milestone**: Phase 3 - Single-Mode Routing
-**Progress**: 3/8 phases complete (38%)
+**Current Phase**: Phase 3 Complete ✅
+**Next Milestone**: Phase 4 - Multi-Modal Routing
+**Progress**: 4/8 phases complete (50%)
 
 ## 📋 Overview
 
@@ -40,6 +40,15 @@ PTV Assistant finds optimal routes between stations using real-time and schedule
 - ✅ Support for trip connections and transfers
 - ✅ Query methods (neighbors, travel times, routes, connections)
 - ✅ 36 tests, 95% test coverage
+
+### Phase 3: Single-Mode Routing ✅
+- ✅ Connection Scan Algorithm (CSA) implementation
+- ✅ Find optimal journeys between stations
+- ✅ Support for departure time constraints
+- ✅ Journey reconstruction with legs and transfers
+- ✅ Journey and Leg dataclasses with time formatting
+- ✅ 41 tests, 98% test coverage
+- ✅ Can now answer: "How do I get from Tarneit to Waurn Ponds at 2 PM?"
 
 ## 🚦 Quick Start
 
@@ -81,13 +90,13 @@ python read_gtfs_feed.py --max-display 10
 | Phase 0 | Foundation - Realtime GTFS Feed | ✅ Complete | 21 | 100% |
 | Phase 1 | Data Layer - GTFS Parser & Models | ✅ Complete | 62 | 97% |
 | Phase 2 | Graph Construction - Transit Network | ✅ Complete | 36 | 95% |
-| Phase 3 | Single-Mode Routing - CSA Algorithm | ⏳ Not Started | - | - |
+| Phase 3 | Single-Mode Routing - CSA Algorithm | ✅ Complete | 41 | 98% |
 | Phase 4 | Multi-Modal Routing | ⏳ Not Started | - | - |
 | Phase 5 | Realtime Integration | ⏳ Not Started | - | - |
 | Phase 6 | Web API & CLI | ⏳ Not Started | - | - |
 | Phase 7 | Performance Optimization | ⏳ Not Started | - | - |
 
-**Total**: 119 tests passing, 97% overall coverage
+**Total**: 160 tests passing, 97% overall coverage
 
 ## 📝 License
 
