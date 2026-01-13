@@ -23,6 +23,12 @@ def data_dir(project_root):
 
 
 @pytest.fixture(scope="session")
-def gtfs_dir(data_dir):
-    """Return the GTFS data directory."""
+def gtfs_dir():
+    """Return the test GTFS fixtures directory."""
+    return Path(__file__).parent / "test_data" / "fixtures"
+
+
+@pytest.fixture(scope="session")
+def real_gtfs_dir(data_dir):
+    """Return the real GTFS data directory."""
     return data_dir / "gtfs"
