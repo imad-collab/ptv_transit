@@ -102,36 +102,55 @@ def display_trip_update(entity):
 
     # Display stop time updates
     if trip_update.stop_time_update:
-        print(f"  Stop Time Updates ({len(trip_update.stop_time_update)}):")
-
-        for stu in trip_update.stop_time_update:
-            stop_info = []
-
-            if stu.HasField('stop_sequence'):
-                stop_info.append(f"Seq: {stu.stop_sequence}")
-
-            if stu.HasField('stop_id'):
-                stop_info.append(f"Stop: {stu.stop_id}")
-
-            if stu.HasField('arrival'):
-                if stu.arrival.HasField('delay'):
-                    stop_info.append(f"Arr Delay: {stu.arrival.delay}s")
-                if stu.arrival.HasField('time'):
-                    arr_time = datetime.fromtimestamp(stu.arrival.time)
-                    stop_info.append(f"Arr: {arr_time.strftime('%H:%M:%S')}")
-
-            if stu.HasField('departure'):
-                if stu.departure.HasField('delay'):
-                    stop_info.append(f"Dep Delay: {stu.departure.delay}s")
-                if stu.departure.HasField('time'):
-                    dep_time = datetime.fromtimestamp(stu.departure.time)
-                    stop_info.append(f"Dep: {dep_time.strftime('%H:%M:%S')}")
-
-            if stu.HasField('schedule_relationship'):
-                stop_info.append(f"Sched: {stu.schedule_relationship}")
-
-            if stop_info:
-                print(f"    - {', '.join(stop_info)}")
+        stops = trip_update.stop_time_update
+        print(f"  Stop Time Updates ({len(stops)}):")
+        
+        # Display STARTING POINT (first stop)
+        if len(stops) > 0:
+            first_stop = stops[0]
+            start_info = ["🟢 STARTING POINT"]
+            
+            if first_stop.HasField('stop_sequence'):
+                start_info.append(f"Seq: {first_stop.stop_sequence}")
+            
+            if first_stop.HasField('stop_id'):
+                start_info.append(f"Stop: {first_stop.stop_id}")
+            
+            if first_stop.HasField('departure') and first_stop.departure.HasField('time'):
+                dep_time = datetime.fromtimestamp(first_stop.departure.time)
+                start_info.append(f"Dep: {dep_time.strftime('%H:%M:%S')}")
+            elif first_stop.HasField('arrival') and first_stop.arrival.HasField('time'):
+                arr_time = datetime.fromtimestamp(first_stop.arrival.time)
+                start_info.append(f"Time: {arr_time.strftime('%H:%M:%S')}")
+            
+            print(f"    {', '.join(start_info)}")
+        
+        # Display intermediate stops (if there are more than 2 stops)
+        if len(stops) > 2:
+            print(f"    ... {len(stops) - 2} intermediate stop(s)")
+        
+        # Display ENDING POINT (last stop)
+        if len(stops) > 1:
+            last_stop = stops[-1]
+            end_info = ["🔴 ENDING POINT"]
+            
+            if last_stop.HasField('stop_sequence'):
+                end_info.append(f"Seq: {last_stop.stop_sequence}")
+            
+            if last_stop.HasField('stop_id'):
+                end_info.append(f"Stop: {last_stop.stop_id}")
+            
+            if last_stop.HasField('arrival') and last_stop.arrival.HasField('time'):
+                arr_time = datetime.fromtimestamp(last_stop.arrival.time)
+                end_info.append(f"Arr: {arr_time.strftime('%H:%M:%S')}")
+            elif last_stop.HasField('departure') and last_stop.departure.HasField('time'):
+                dep_time = datetime.fromtimestamp(last_stop.departure.time)
+                end_info.append(f"Time: {dep_time.strftime('%H:%M:%S')}")
+            
+            print(f"    {', '.join(end_info)}")
+        elif len(stops) == 1:
+            # Only one stop in the update (could be current position)
+            print(f"    (Single stop update - current position)")
 
     print()
 

@@ -4,9 +4,9 @@ A Python-based multi-modal journey planner for Melbourne's public transport netw
 
 ## 🚀 Project Status
 
-**Current Phase**: Foundation (85% Complete)  
-**Next Milestone**: Data Layer Implementation  
-**Target**: MVP in 4 weeks, V1 in 8 weeks
+**Current Phase**: Phase 1 Complete ✅
+**Next Milestone**: Phase 2 - Graph Construction
+**Progress**: 2/8 phases complete (25%)
 
 ## 📋 Overview
 
@@ -19,10 +19,19 @@ PTV Assistant finds optimal routes between stations using real-time and schedule
 
 ## 🎯 Current Capabilities
 
+### Phase 0: Foundation ✅
 - ✅ Fetch real-time trip updates from PTV GTFS feeds
 - ✅ Parse protocol buffer data
 - ✅ Display arrival/departure predictions with delays
-- ✅ Support for metro trains (initial implementation)
+- ✅ 21 tests, 100% test coverage
+
+### Phase 1: Data Layer ✅
+- ✅ Parse GTFS static data (stops, routes, trips, schedules)
+- ✅ Type-safe data models for all GTFS entities
+- ✅ Fast stop lookup with fuzzy name matching
+- ✅ Extracted V/Line GTFS (497 stops, 13 routes, 8,096 trips)
+- ✅ 62 tests, 97% test coverage
+- ✅ Successfully query trips between stations (e.g., Tarneit to Waurn Ponds)
 
 ## 🚦 Quick Start
 
@@ -57,15 +66,20 @@ python read_gtfs_feed.py --max-display 10
 - **[DATA_SOURCES.md](docs/DATA_SOURCES.md)** - Complete GTFS data reference
 - **[CHECKPOINT.md](docs/CHECKPOINT.md)** - Current project status
 
-## 🗺️ Roadmap
+## 🗺️ Development Roadmap
 
-| Phase | Timeline | Status |
-|-------|----------|--------|
-| Foundation | Week 1 | 85% ✅ |
-| Data Layer | Week 2 | ⏳ |
-| Single-Mode | Week 4 | ⏳ MVP |
-| Multi-Modal | Week 6 | ⏳ |
-| V1 Release | Week 8 | ⏳ |
+| Phase | Description | Status | Tests | Coverage |
+|-------|-------------|--------|-------|----------|
+| Phase 0 | Foundation - Realtime GTFS Feed | ✅ Complete | 21 | 100% |
+| Phase 1 | Data Layer - GTFS Parser & Models | ✅ Complete | 62 | 97% |
+| Phase 2 | Graph Construction - Transit Network | ⏳ Not Started | - | - |
+| Phase 3 | Single-Mode Routing - CSA Algorithm | ⏳ Not Started | - | - |
+| Phase 4 | Multi-Modal Routing | ⏳ Not Started | - | - |
+| Phase 5 | Realtime Integration | ⏳ Not Started | - | - |
+| Phase 6 | Web API & CLI | ⏳ Not Started | - | - |
+| Phase 7 | Performance Optimization | ⏳ Not Started | - | - |
+
+**Total**: 83 tests passing, 98% overall coverage
 
 ## 📝 License
 
@@ -78,4 +92,5 @@ MIT License - Data from PTV under CC BY 4.0
 
 ---
 
-**Last Updated**: 2026-01-12
+**Last Updated**: 2026-01-13
+**Repository**: https://github.com/imad-collab/ptv_transit
