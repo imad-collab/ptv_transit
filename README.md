@@ -65,7 +65,7 @@ PTV Assistant finds optimal routes between stations using real-time and schedule
 ### Prerequisites
 
 - Python 3.9+
-- PTV API key from [PTV Open Data Portal](https://opendata.transport.vic.gov.au/)
+- PTV API key from [PTV Open Data Portal](https://opendata.transport.vic.gov.au/) (for real-time features)
 
 ### Installation
 
@@ -73,25 +73,82 @@ PTV Assistant finds optimal routes between stations using real-time and schedule
 2. Create virtual environment: `python3 -m venv venv`
 3. Activate: `source venv/bin/activate`
 4. Install dependencies: `pip install -r requirements.txt`
-5. Create `.env` file with your `PTV_API_KEY`
+5. (Optional) Create `.env` file with your `PTV_API_KEY` for real-time features
 
-### Usage
+### Find a Journey (New!)
 
 ```bash
-# Show 5 trip updates
+# Find next available journey
+python find_journey.py "Tarneit" "Waurn Ponds"
+
+# Find journey at specific time
+python find_journey.py "Tarneit" "Waurn Ponds" "14:00:00"
+
+# Run comprehensive demo
+python examples/find_real_journey.py
+```
+
+**Example output:**
+```
+✅ JOURNEY FOUND!
+
+Journey: Tarneit Station → Waurn Ponds Station
+Departure: 14:17:00
+Arrival: 15:08:00
+Duration: 51m
+Transfers: 1
+
+Leg 1: Regional Train
+  Tarneit Station → Geelong Station
+  14:17:00 - 14:51:00 (34m)
+
+Leg 2: Regional Train
+  Geelong Station → Waurn Ponds Station
+  14:54:00 - 15:08:00 (14m)
+```
+
+### Other Usage
+
+```bash
+# Show real-time trip updates
 python read_gtfs_feed.py
 
 # Show 10 trip updates
 python read_gtfs_feed.py --max-display 10
 ```
 
+## 💡 What Can It Do?
+
+The journey planner currently supports:
+
+✅ **Find Optimal Routes** - Uses Connection Scan Algorithm (CSA) to find fastest journeys
+✅ **Multi-Modal Support** - Track transport modes (train, tram, bus, ferry)
+✅ **Real GTFS Data** - Works with V/Line data (497 stops, 8,096 trips, 99,694 connections)
+✅ **Fuzzy Station Search** - "Tarneit" finds "Tarneit Station"
+✅ **Transfer Handling** - Calculates wait times and transfer locations
+✅ **Time-Based Queries** - Find journeys departing after specific times
+✅ **Journey Statistics** - Duration, transfers, modes used, stops count
+✅ **Fast Performance** - Complete journey planning in <2 seconds
+
+**Coming in Phase 5:**
+⏳ Real-time delays and cancellations
+⏳ Platform information
+⏳ Service alerts
+
 ## 📚 Documentation
 
+### Getting Started
+- **[QUICK_START.md](QUICK_START.md)** - Quick guide to finding journeys
+- **[examples/README.md](examples/README.md)** - Working examples and demos
+- **[examples/PHASE4_API_REFERENCE.md](examples/PHASE4_API_REFERENCE.md)** - Multi-modal routing API
+
+### Technical Documentation
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and components
 - **[FEASIBILITY.md](docs/FEASIBILITY.md)** - Feasibility analysis (9/10 score)
 - **[ROADMAP.md](docs/ROADMAP.md)** - Week-by-week implementation plan
 - **[DATA_SOURCES.md](docs/DATA_SOURCES.md)** - Complete GTFS data reference
-- **[CHECKPOINT.md](docs/CHECKPOINT.md)** - Current project status
+- **[DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md)** - Detailed progress tracking
+- **[CONTEXT.md](CONTEXT.md)** - Development session resume point
 
 ## 🗺️ Development Roadmap
 
@@ -119,5 +176,5 @@ MIT License - Data from PTV under CC BY 4.0
 
 ---
 
-**Last Updated**: 2026-01-13
+**Last Updated**: 2026-01-14
 **Repository**: https://github.com/imad-collab/ptv_transit
