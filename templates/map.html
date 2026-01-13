@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map - PTV Journey Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5em;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .map-container {
+            position: relative;
+            height: calc(100vh - 70px);
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            min-width: 300px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .route-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            max-width: 300px;
+        }
+        
+        .station-popup {
+            text-align: center;
+        }
+        
+        .station-popup h3 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .station-popup p {
+            margin: 2px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PTV Journey Planner - Map View</h1>
+        <div class="nav-links">
+            <a href="/">Journey Planner</a>
+            <a href="/stations">Stations List</a>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        <div id="map"></div>
+        
+        <div class="map-controls">
+            <h3 style="margin-bottom: 15px; color: #2c3e50;">Plan Journey</h3>
+            
+            <div id="stationStatus" style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px; font-size: 12px; color: #666;">
+                Loading stations...
+            </div>
+            
+            <div class="control-group">
+                <label for="mapOrigin">From:</label>
+                <input type="text" id="mapOrigin" placeholder="Start typing station name..." autocomplete="off">
+            </div>
+            
+            <div class="control-group">
+                <label for="mapDestination">To:</label>
+                <input type="text" id="mapDestination" placeholder="Start typing station name..." autocomplete="off">
+            </div>
+            
+            <div class="control-group">
+                <label for="mapMode">Mode:</label>
+                <select id="mapMode">
+                    <option value="train">Train</option>
+                    <option value="tram">Tram</option>
+                    <option value="bus">Bus</option>
+                </select>
+            </div>
+            
+            <button class="btn" id="planOnMap">Plan Journey</button>
+            <button class="btn" id="clearMap" style="background: #dc3545; margin-top: 5px;">Clear Route</button>
+        </div>
+        
+        <div class="route-info" id="routeInfo">
+            <!-- Route information will be displayed here -->
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2196F3;"></div>
+                <span>Train Stations</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9C27B0;"></div>
+                <span>Tram Stops</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4CAF50;"></div>
+                <span>Bus Stops</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF5722;"></div>
+                <span>Journey Route</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let stations = [];
+        let routeLine = null;
+        let originMarker = null;
+        let destinationMarker = null;
+        let stationMarkers = [];
+        
+        // Initialize map
+        function initMap() {
+            // Center on Melbourne
+            map = L.map('map').setView([-37.8136, 144.9631], 12);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            loadStations();
+            setupAutocomplete();
+        }
+        
+        // Load and display stations from API
+        async function loadStations() {
+            try {
+                console.log('Loading stations from API...');
+                const response = await fetch('/api/stations');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                stations = await response.json();
+                console.log(`Loaded ${stations.length} stations:`, stations);
+                
+                // Update status
+                document.getElementById('stationStatus').innerHTML = `
+                    <span style="color: #28a745;">[OK]</span> ${stations.length} stations loaded
+                `;
+                
+                // Clear existing markers
+                stationMarkers.forEach(marker => map.removeLayer(marker));
+                stationMarkers = [];
+                
+                stations.forEach(station => {
+                    // Different colors for different station types
+                    const color = getStationColor(station.name);
+                    
+                    const marker = L.circleMarker([station.lat, station.lon], {
+                        radius: 8,
+                        fillColor: color,
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    // Popup with station info
+                    marker.bindPopup(`
+                        <div class="station-popup">
+                            <h3>${station.name}</h3>
+                            <p><strong>Platform:</strong> ${station.platform}</p>
+                            <p><strong>Location:</strong> ${station.lat.toFixed(4)}, ${station.lon.toFixed(4)}</p>
+                            <button onclick="selectStation('${station.name}', 'origin')" style="margin: 5px; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">Set as Origin</button>
+                            <button onclick="selectStation('${station.name}', 'destination')" style="margin: 5px; padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">Set as Destination</button>
+                        </div>
+                    `);
+                    
+                    // Store reference for later use
+                    marker.stationData = station;
+                    stationMarkers.push(marker);
+                });
+                
+            } catch (error) {
+                console.error('Failed to load stations:', error);
+                document.getElementById('stationStatus').innerHTML = `
+                    <span style="color: #dc3545;">[ERROR]</span> Failed to load stations
+                `;
+                alert('Failed to load stations from API. Please check the server.');
+            }
+        }
+        
+        // Setup autocomplete for station inputs
+        function setupAutocomplete() {
+            const originInput = document.getElementById('mapOrigin');
+            const destinationInput = document.getElementById('mapDestination');
+            
+            // Add datalist for autocomplete
+            const datalist = document.createElement('datalist');
+            datalist.id = 'stationsList';
+            document.body.appendChild(datalist);
+            
+            originInput.setAttribute('list', 'stationsList');
+            destinationInput.setAttribute('list', 'stationsList');
+            
+            // Update datalist when stations are loaded
+            function updateDatalist() {
+                datalist.innerHTML = '';
+                stations.forEach(station => {
+                    const option = document.createElement('option');
+                    option.value = station.name;
+                    datalist.appendChild(option);
+                });
+            }
+            
+            // Update datalist initially and when stations change
+            updateDatalist();
+            
+            // Add input event listeners for real-time filtering
+            [originInput, destinationInput].forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    if (value.length > 0) {
+                        const filtered = stations.filter(station => 
+                            station.name.toLowerCase().includes(value)
+                        );
+                        
+                        datalist.innerHTML = '';
+                        filtered.forEach(station => {
+                            const option = document.createElement('option');
+                            option.value = station.name;
+                            datalist.appendChild(option);
+                        });
+                    } else {
+                        updateDatalist();
+                    }
+                });
+            });
+        }
+        
+        // Get station color based on type
+        function getStationColor(stationName) {
+            // Simple logic - in real app, this would be based on actual station types
+            if (stationName.includes('Central') || stationName.includes('Flinders') || stationName.includes('Southern Cross')) {
+                return '#2196F3'; // Blue for major train stations
+            } else if (stationName.includes('Tram')) {
+                return '#9C27B0'; // Purple for tram
+            } else if (stationName.includes('Bus')) {
+                return '#4CAF50'; // Green for bus
+            } else {
+                return '#2196F3'; // Default blue for train
+            }
+        }
+        
+        // Select station from popup
+        function selectStation(stationName, type) {
+            if (type === 'origin') {
+                document.getElementById('mapOrigin').value = stationName;
+            } else {
+                document.getElementById('mapDestination').value = stationName;
+            }
+        }
+        
+        // Plan journey on map
+        document.getElementById('planOnMap').addEventListener('click', async function() {
+            const origin = document.getElementById('mapOrigin').value.trim();
+            const destination = document.getElementById('mapDestination').value.trim();
+            const mode = document.getElementById('mapMode').value;
+            
+            if (!origin || !destination) {
+                alert('Please enter both origin and destination stations');
+                return;
+            }
+            
+            // Validate station names
+            const originExists = stations.some(s => s.name.toLowerCase() === origin.toLowerCase());
+            const destExists = stations.some(s => s.name.toLowerCase() === destination.toLowerCase());
+            
+            if (!originExists) {
+                alert(`Origin station "${origin}" not found. Please select from the available stations.`);
+                return;
+            }
+            
+            if (!destExists) {
+                alert(`Destination station "${destination}" not found. Please select from the available stations.`);
+                return;
+            }
+            
+            this.disabled = true;
+            this.textContent = 'Planning...';
+            
+            try {
+                console.log('Planning journey:', { origin, destination, mode });
+                
+                const response = await fetch('/api/plan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        origin: origin,
+                        destination: destination,
+                        mode: mode,
+                        time: 'now'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Journey result:', result);
+                
+                if (result.success) {
+                    displayRouteOnMap(result.journey);
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error occurred'));
+                }
+                
+            } catch (error) {
+                console.error('Journey planning error:', error);
+                alert('Failed to plan journey. Please check the server connection.');
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Plan Journey';
+            }
+        });
+        
+        // Display route on map
+        function displayRouteOnMap(journey) {
+            // Clear existing route
+            clearRoute();
+            
+            // Find origin and destination stations
+            const originStation = stations.find(s => s.name === journey.origin.name);
+            const destStation = stations.find(s => s.name === journey.destination.name);
+            
+            if (!originStation || !destStation) {
+                alert('Could not find station coordinates');
+                return;
+            }
+            
+            // Add origin marker
+            originMarker = L.marker([originStation.lat, originStation.lon], {
+                icon: L.divIcon({
+                    className: 'origin-marker',
+                    html: '<div style="background: #28a745; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold;">A</div>',
+                    iconSize: [20, 20]
+                })
+            }).addTo(map);
+            
+            // Add destination marker
+            destinationMarker = L.marker([destStation.lat, destStation.lon], {
+                icon: L.divIcon({
+                    className: 'destination-marker',
+                    html: '<div style="background: #dc3545; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold;">B</div>',
+                    iconSize: [20, 20]
+                })
+            }).addTo(map);
+            
+            // Draw route line
+            routeLine = L.polyline([
+                [originStation.lat, originStation.lon],
+                [destStation.lat, destStation.lon]
+            ], {
+                color: '#FF5722',
+                weight: 4,
+                opacity: 0.8
+            }).addTo(map);
+            
+            // Fit map to show route
+            const group = new L.featureGroup([originMarker, destinationMarker, routeLine]);
+            map.fitBounds(group.getBounds().pad(0.1));
+            
+            // Show route info
+            showRouteInfo(journey);
+        }
+        
+        // Show route information
+        function showRouteInfo(journey) {
+            const routeInfo = document.getElementById('routeInfo');
+            const modeColors = {
+                'train': '#2196F3',
+                'tram': '#9C27B0', 
+                'bus': '#4CAF50'
+            };
+            
+            routeInfo.innerHTML = `
+                <h4 style="margin-bottom: 10px; color: #2c3e50;">Journey Details</h4>
+                <div style="margin-bottom: 8px;">
+                    <span style="display: inline-block; width: 12px; height: 12px; background: ${modeColors[journey.mode]}; border-radius: 50%; margin-right: 8px;"></span>
+                    <strong>${journey.mode.toUpperCase()}</strong>
+                </div>
+                <p><strong>Route:</strong> ${journey.route_name}</p>
+                <p><strong>Duration:</strong> ${journey.duration_minutes} minutes</p>
+                <p><strong>Departure:</strong> ${journey.departure_time} from ${journey.origin.platform}</p>
+                <p><strong>Arrival:</strong> ${journey.arrival_time}</p>
+                <p><strong>Transfers:</strong> ${journey.transfers}</p>
+            `;
+            
+            routeInfo.style.display = 'block';
+        }
+        
+        // Clear route from map
+        function clearRoute() {
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+            if (originMarker) {
+                map.removeLayer(originMarker);
+                originMarker = null;
+            }
+            if (destinationMarker) {
+                map.removeLayer(destinationMarker);
+                destinationMarker = null;
+            }
+            
+            document.getElementById('routeInfo').style.display = 'none';
+        }
+        
+        // Clear map button
+        document.getElementById('clearMap').addEventListener('click', function() {
+            clearRoute();
+            document.getElementById('mapOrigin').value = '';
+            document.getElementById('mapDestination').value = '';
+        });
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>

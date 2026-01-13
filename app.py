@@ -99,6 +99,11 @@ def plan_journey():
     except Exception as e:
         return jsonify({'error': f'Unexpected error: {str(e)}'}), 500
 
+@app.route('/map')
+def map_page():
+    """Map page with interactive journey planning"""
+    return render_template('map.html')
+
 @app.route('/stations')
 def stations_page():
     """Page showing all available stations"""
