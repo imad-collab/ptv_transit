@@ -29,6 +29,8 @@ class Leg:
     trip_id: str
     route_id: str
     route_name: Optional[str] = None
+    route_type: Optional[int] = None  # GTFS route_type for multi-modal support
+    is_transfer: bool = False  # True if this is a walking transfer
 
     # Number of stops between origin and destination (including both)
     num_stops: int = 0
@@ -36,6 +38,23 @@ class Leg:
     def __post_init__(self):
         """Validate and convert types."""
         self.num_stops = int(self.num_stops)
+        if self.route_type is not None:
+            self.route_type = int(self.route_type)
+
+    def get_mode_name(self) -> str:
+        """Get human-readable mode name."""
+        if self.is_transfer:
+            return "Walking"
+        mode_map = {
+            0: "Tram",
+            1: "Metro",
+            2: "Regional Train",
+            3: "Bus",
+            4: "Ferry",
+            700: "Bus",  # PTV uses 700 for buses
+            900: "Tram"   # PTV uses 900 for trams
+        }
+        return mode_map.get(self.route_type, "Unknown")
 
     @property
     def duration_seconds(self) -> int:
@@ -130,6 +149,31 @@ class Journey:
         mins = minutes % 60
         return f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
 
+    def get_modes_used(self) -> List[str]:
+        """
+        Get list of transport modes used in this journey.
+
+        Returns:
+            List of unique mode names (e.g., ["Regional Train", "Bus"])
+        """
+        modes = []
+        seen = set()
+        for leg in self.legs:
+            mode = leg.get_mode_name()
+            if mode not in seen and mode != "Walking":
+                modes.append(mode)
+                seen.add(mode)
+        return modes
+
+    def is_multi_modal(self) -> bool:
+        """
+        Check if journey uses multiple transport modes.
+
+        Returns:
+            True if journey uses more than one mode (excluding walking transfers)
+        """
+        return len(self.get_modes_used()) > 1
+
     def get_transfer_wait_times(self) -> List[int]:
         """
         Get wait times at each transfer in seconds.
@@ -174,11 +218,13 @@ class Journey:
         for i, leg in enumerate(self.legs, 1):
             lines.append(f"Leg {i}:")
             lines.append(f"  {leg.from_stop_name} → {leg.to_stop_name}")
+            lines.append(f"  Mode: {leg.get_mode_name()}")
             lines.append(f"  Depart: {leg.departure_time}  Arrive: {leg.arrival_time}")
             lines.append(f"  Duration: {leg.format_duration()}")
             if leg.route_name:
                 lines.append(f"  Route: {leg.route_name}")
-            lines.append(f"  Stops: {leg.num_stops}")
+            if not leg.is_transfer:
+                lines.append(f"  Stops: {leg.num_stops}")
 
             # Add transfer wait time if not last leg
             if i < len(self.legs):

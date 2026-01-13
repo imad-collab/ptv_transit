@@ -25,10 +25,29 @@ class Connection:
     arrival_time: str
     travel_time_seconds: int
     route_id: str
+    route_type: Optional[int] = None  # GTFS route_type (0=tram, 1=metro, 2=rail, 3=bus, etc.)
+    is_transfer: bool = False  # True if this is a walking transfer
 
     def __post_init__(self):
         """Validate and convert types."""
         self.travel_time_seconds = int(self.travel_time_seconds)
+        if self.route_type is not None:
+            self.route_type = int(self.route_type)
+
+    def get_mode_name(self) -> str:
+        """Get human-readable mode name."""
+        if self.is_transfer:
+            return "Walking"
+        mode_map = {
+            0: "Tram",
+            1: "Metro",
+            2: "Regional Train",
+            3: "Bus",
+            4: "Ferry",
+            700: "Bus",  # PTV uses 700 for buses
+            900: "Tram"   # PTV uses 900 for trams
+        }
+        return mode_map.get(self.route_type, "Unknown")
 
 
 class TransitGraph:
@@ -109,6 +128,12 @@ class TransitGraph:
                 trip = self.parser.trips.get(trip_id)
                 route_id = trip.route_id if trip else ""
 
+                # Get route type for multi-modal support
+                route_type = None
+                if route_id:
+                    route = self.parser.routes.get(route_id)
+                    route_type = route.route_type if route else None
+
                 # Create connection
                 connection = Connection(
                     from_stop_id=current_stop.stop_id,
@@ -117,7 +142,9 @@ class TransitGraph:
                     departure_time=current_stop.departure_time,
                     arrival_time=next_stop.arrival_time,
                     travel_time_seconds=travel_time,
-                    route_id=route_id
+                    route_id=route_id,
+                    route_type=route_type,
+                    is_transfer=False
                 )
                 self.connections.append(connection)
 

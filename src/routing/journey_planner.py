@@ -259,6 +259,8 @@ class JourneyPlanner:
             trip_id=first_conn.trip_id,
             route_id=first_conn.route_id,
             route_name=route.route_long_name if route else None,
+            route_type=first_conn.route_type,
+            is_transfer=first_conn.is_transfer,
             num_stops=len(connections) + 1  # Number of stops including first and last
         )
 
