@@ -3,7 +3,7 @@
 **Date**: 2026-01-13
 **Repository**: https://github.com/imad-collab/ptv_transit
 **Branch**: main
-**Last Commit**: `7ed43a6` - "Update project documentation with Phase 1 completion status"
+**Last Commit**: `b312bec` - "Phase 2: Graph Construction Complete ✅"
 
 ---
 
@@ -24,12 +24,19 @@ You are building a **PTV Transit Assistant** - a journey planner for Melbourne's
    - Stop index with fuzzy search
    - Successfully answered: "Tarneit to Waurn Ponds - what trips are available?" (1,989 trips found)
 
+3. **Phase 2: Graph Construction** (100% complete, 36 tests, 95% coverage)
+   - Transit network graph using NetworkX
+   - Nodes for stops with metadata
+   - Edges for connections with travel times
+   - Transfer edge support
+   - Query methods for graph exploration
+
 ### What's Next ⏳
 
-**Phase 2: Graph Construction** - Build transit network graph using NetworkX
-- Create nodes for stops
-- Create edges for connections with travel times
-- Handle transfers
+**Phase 3: Single-Mode Routing** - Implement Connection Scan Algorithm (CSA)
+- Find optimal journeys between stations
+- Support departure/arrival time constraints
+- Journey result formatting
 - Target: 95%+ test coverage
 
 ---
@@ -42,13 +49,14 @@ PTV_Assistant-main/
 ├── src/
 │   ├── data/           ✅ Complete - GTFS parser, models, stop index
 │   ├── realtime/       ✅ Complete - Feed fetcher
-│   ├── graph/          ⏳ Empty - Next phase
-│   ├── routing/        ⏳ Empty - Future phase
+│   ├── graph/          ✅ Complete - Transit graph with NetworkX
+│   ├── routing/        ⏳ Empty - Next phase
 │   ├── api/            ⏳ Empty - Future phase
 │   └── cli/            ⏳ Empty - Future phase
 ├── tests/
 │   ├── test_data/      ✅ 62 tests
-│   └── test_realtime/  ✅ 21 tests
+│   ├── test_realtime/  ✅ 21 tests
+│   └── test_graph/     ✅ 36 tests
 ├── data/
 │   └── gtfs/           ✅ V/Line data extracted (497 stops, 13 routes, 8,096 trips)
 └── docs/               ✅ Documentation files
@@ -61,10 +69,12 @@ PTV_Assistant-main/
 - `src/data/gtfs_parser.py` - CSV parser for GTFS files
 - `src/data/stop_index.py` - Fast stop lookup with fuzzy matching
 - `src/realtime/feed_fetcher.py` - Real-time feed fetcher
+- `src/graph/transit_graph.py` - Transit network graph with NetworkX
 
 **Tests:**
 - `tests/test_data/` - 62 tests for Phase 1
 - `tests/test_realtime/` - 21 tests for Phase 0
+- `tests/test_graph/` - 36 tests for Phase 2
 - `tests/test_data/fixtures/` - Sample GTFS CSV files
 
 **Documentation:**
@@ -84,12 +94,14 @@ PTV_Assistant-main/
 |-----------|-------|----------|--------|
 | Phase 0: Realtime | 21 | 100% | ✅ Complete |
 | Phase 1: Data Layer | 62 | 97% | ✅ Complete |
-| **Total** | **83** | **98%** | **2/8 phases done** |
+| Phase 2: Graph | 36 | 95% | ✅ Complete |
+| **Total** | **119** | **97%** | **3/8 phases done** |
 
 Run tests:
 ```bash
-pytest                                    # All tests
-pytest tests/test_data/                   # Phase 1 only
+pytest                                      # All tests (119)
+pytest tests/test_data/                     # Phase 1 only (62 tests)
+pytest tests/test_graph/                    # Phase 2 only (36 tests)
 pytest --cov=src --cov-report=term-missing  # With coverage
 ```
 
@@ -137,10 +149,10 @@ pytest --cov=src --cov-report=term-missing  # With coverage
 
 ### Recent Commits
 ```
+b312bec Phase 2: Graph Construction Complete ✅
+3b6f11d Add CONTEXT.md for easy session resumption
 7ed43a6 Update project documentation with Phase 1 completion status
 f17c4b0 Phase 1: Data Layer Complete ✅
-873891e Add comprehensive test report for Phase 0
-0f78d7e Phase 0: Foundation Complete ✅
 ```
 
 ### Remote Repository
@@ -200,26 +212,26 @@ pip install -r requirements.txt
 3. **Run tests**: `pytest` to verify everything works
 4. **Review**: `DEVELOPMENT_STATUS.md` for detailed progress
 
-### Next Steps - Phase 2: Graph Construction
+### Next Steps - Phase 3: Single-Mode Routing
 
-**Goal**: Build a transit network graph representing how stops connect
+**Goal**: Implement Connection Scan Algorithm (CSA) to find optimal journeys
 
 **Tasks**:
-1. Install NetworkX: `pip install networkx`
-2. Create `src/graph/transit_graph.py`
-3. Implement `TransitGraph` class:
-   - Build graph from GTFS parser data
-   - Nodes: Stops (with metadata)
-   - Edges: Connections between stops with travel times
-   - Add transfer edges
-4. Write tests in `tests/test_graph/test_transit_graph.py`
+1. Create `src/routing/journey_planner.py`
+2. Implement `JourneyPlanner` class:
+   - Connection Scan Algorithm (CSA) for route finding
+   - Support departure time constraints
+   - Support arrival time constraints
+   - Find earliest arrival journeys
+3. Implement `Journey` and `Leg` dataclasses for results
+4. Write comprehensive tests in `tests/test_routing/`
 5. Target: 95%+ test coverage
 6. Commit and push to GitHub
 
 **Success Criteria**:
-- Can build graph from 497 V/Line stops
-- Can query: "What stops connect to Tarneit?"
-- Can retrieve: "Travel time from Tarneit to next stop?"
+- Can answer: "How do I get from Tarneit to Waurn Ponds at 2 PM?"
+- Returns journey with: departure time, arrival time, transfers, route details
+- Handles edge cases (no route, same origin/destination)
 - All tests passing
 
 ### Common Commands
@@ -338,5 +350,5 @@ A journey planner that answers queries like:
 **This file captures everything you need to resume work. Read it at the start of your next session!**
 
 **Last Updated**: 2026-01-13
-**Next Phase**: Phase 2 - Graph Construction
+**Next Phase**: Phase 3 - Single-Mode Routing (CSA Algorithm)
 **Status**: Ready to continue! 🚀
