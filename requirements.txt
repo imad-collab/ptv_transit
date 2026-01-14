@@ -11,3 +11,6 @@ urllib3==2.6.3
 pandas>=2.1.0
 fuzzywuzzy>=0.18.0
 python-Levenshtein>=0.20.0
+
+# Phase 2: Graph construction
+networkx>=3.0

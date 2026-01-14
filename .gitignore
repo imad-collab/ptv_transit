@@ -63,10 +63,3 @@ htmlcov/
 *.tmp
 *.bak
 *.swp
-
-# Claude Code local preferences (personal, not shared)
-CLAUDE.local.md
-.claude/CLAUDE.local.md
-
-# Note: .claude/handoffs/ is TRACKED for team handoffs
-# Note: .claude/handoffs/archive/ is TRACKED for history (optional)
