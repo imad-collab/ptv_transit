@@ -2,16 +2,16 @@
 
 **Project**: PTV Transit Assistant
 **Repository**: https://github.com/imad-collab/ptv_transit
-**Last Updated**: 2026-01-13
-**Overall Progress**: 62.5% (5/8 phases complete)
+**Last Updated**: 2026-01-14
+**Overall Progress**: 75% (6/8 phases complete)
 
 ---
 
 ## Executive Summary
 
-The PTV Transit Assistant is a journey planning application for Melbourne's public transport network. We are implementing a phased approach with comprehensive test coverage (currently 97%) following senior developer practices.
+The PTV Transit Assistant is a journey planning application for Melbourne's public transport network. We are implementing a phased approach with comprehensive test coverage (currently 96%) following senior developer practices.
 
-**Key Achievement**: Successfully implemented multi-modal journey planning! Can now answer "How do I get from Tarneit to Waurn Ponds at 2 PM?" with optimal routes showing transport modes, departure/arrival times, and transfer information.
+**Key Achievement**: Successfully implemented realtime integration! Can now answer "How do I get from Tarneit to Waurn Ponds at 2 PM?" with optimal routes showing transport modes, departure/arrival times, transfer information, AND live delays/cancellations from PTV's real-time feed.
 
 ---
 
@@ -179,14 +179,55 @@ The PTV Transit Assistant is a journey planning application for Melbourne's publ
 
 ---
 
-### ⏳ Phase 5: Realtime Integration (Not Started)
+### ✅ Phase 5: Realtime Integration (Complete)
 
-**Status**: Not Started
-**Planned Deliverables**:
-- Integrate Phase 0 realtime feeds with Phase 3 routing
-- Apply delays to scheduled times
-- Filter cancelled services
-- Show real-time platform information
+**Status**: Complete
+**Commits**:
+- `1186a9b` - "Phase 5: Realtime Integration Core (Steps 1-7) ✅"
+- `b04e70c` - "Update find_journey.py with Phase 5 realtime integration"
+**Test Coverage**: 96% (230 tests, 53 new)
+
+**Deliverables**:
+1. **Enhanced Data Models** ([src/routing/models.py](src/routing/models.py))
+   - Added realtime fields to Leg and Journey dataclasses
+   - scheduled/actual departure/arrival times
+   - delay tracking, cancellation status, platform information
+   - Backward compatible with existing code
+
+2. **Time Utilities** ([src/realtime/time_utils.py](src/realtime/time_utils.py))
+   - Unix timestamp ↔ HH:MM:SS conversions
+   - Delay application to scheduled times
+   - Time difference calculations
+   - 33 comprehensive unit tests
+
+3. **Realtime Integration Module** ([src/realtime/integration.py](src/realtime/integration.py))
+   - RealtimeIntegrator class for applying realtime updates
+   - TripUpdateInfo and StopUpdate dataclasses
+   - GTFS Realtime protobuf parsing
+   - Delay application to journey legs
+   - Transfer validation after delays
+   - Cancellation detection
+   - Platform information extraction
+   - 20 integration tests
+
+4. **CLI Integration** ([find_journey.py](find_journey.py))
+   - --realtime flag for live delays
+   - Graceful fallback when API unavailable
+   - Enhanced output with scheduled → actual times
+   - Journey validity warnings
+
+**Technical Achievements**:
+- Post-processing pattern: apply realtime after routing
+- Validates transfers remain feasible after delays (2 min minimum)
+- Handles missing/partial realtime data gracefully
+- Response time < 2 seconds (including realtime fetch)
+- 95%+ test coverage on new code
+
+**Usage**:
+```bash
+export PTV_API_KEY='your-key'
+python find_journey.py "Tarneit" "Waurn Ponds" "14:00:00" --realtime
+```
 
 ---
 
@@ -230,13 +271,18 @@ The PTV Transit Assistant is a journey planning application for Melbourne's publ
 | **Phase 4: Multi-Modal** | 58 | 220 | 97% | 7 |
 | src/routing/models.py (updated) | 34 | 137 | 97% | 4 |
 | src/graph/transit_graph.py (updated) | 39 | 116 | 96% | 5 |
-| **Total** | **177** | **656** | **97%** | **17** |
+| **Phase 5: Realtime Integration** | 53 | 280 | 96% | 11 |
+| src/realtime/time_utils.py | 33 | 95 | 98% | 2 |
+| src/realtime/integration.py | 20 | 185 | 95% | 9 |
+| **Total** | **230** | **936** | **96%** | **28** |
 
-**Missing Coverage** (17 lines total):
+**Missing Coverage** (28 lines total):
 - gtfs_parser.py (7 lines): Error handling for missing optional files
 - routing/models.py (4 lines): Edge cases in time formatting
 - routing/journey_planner.py (1 line): Defensive error path
 - graph/transit_graph.py (5 lines): Error handling and edge cases
+- realtime/time_utils.py (2 lines): Edge cases in timestamp conversion
+- realtime/integration.py (9 lines): Error handling for malformed protobuf data
 
 These are primarily defensive error paths that are tested but not hit in coverage.
 
@@ -245,11 +291,16 @@ These are primarily defensive error paths that are tested but not hit in coverag
 ## Git Commit History
 
 ```
+3ecf2ed Update README.md with journey finder examples
+373870c Add journey finder examples and Phase 5 planning
+6dc1ec8 Update CONTEXT.md and DEVELOPMENT_STATUS.md for Phase 4
 d51f06b Phase 4: Multi-Modal Routing Support ✅
 74170cc Update documentation for Phase 3 completion
 627f366 Phase 3: Single-Mode Routing Complete ✅
 b312bec Phase 2: Graph Construction Complete ✅
 f17c4b0 Phase 1: Data Layer Complete ✅
+1186a9b Phase 5: Realtime Integration Core (Steps 1-7) ✅
+b04e70c Update find_journey.py with Phase 5 realtime integration
 ```
 
 **Remote**: https://github.com/imad-collab/ptv_transit.git
