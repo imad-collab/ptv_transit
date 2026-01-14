@@ -195,4 +195,4 @@ MIT License - Data from PTV under CC BY 4.0
 ---
 
 **Last Updated**: 2026-01-14
-**Repository**: https://github.com/imad-collab/ptv_transit
+**Repository**: https://github.com/caprihan/PTV_Assistant

@@ -1,7 +1,7 @@
 # Development Status Report
 
 **Project**: PTV Transit Assistant
-**Repository**: https://github.com/imad-collab/ptv_transit
+**Repository**: https://github.com/caprihan/PTV_Assistant
 **Last Updated**: 2026-01-14
 **Overall Progress**: 75% (6/8 phases complete)
 
@@ -303,7 +303,7 @@ f17c4b0 Phase 1: Data Layer Complete ✅
 b04e70c Update find_journey.py with Phase 5 realtime integration
 ```
 
-**Remote**: https://github.com/imad-collab/ptv_transit.git
+**Remote**: https://github.com/caprihan/PTV_Assistant.git
 **Branch**: main (tracking origin/main)
 
 ---
@@ -421,7 +421,7 @@ requests-mock>=1.11.0
 - **PTV Open Data**: https://opendata.transport.vic.gov.au/
 - **GTFS Specification**: https://gtfs.org/
 - **GTFS Realtime**: https://developers.google.com/transit/gtfs-realtime
-- **Repository**: https://github.com/imad-collab/ptv_transit
+- **Repository**: https://github.com/caprihan/PTV_Assistant
 
 ---
 

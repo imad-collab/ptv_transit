@@ -267,7 +267,7 @@ pip install -r requirements.txt
 - [Claude Code Memory Documentation](https://code.claude.com/docs/en/memory)
 - [Claude Code Slash Commands](https://code.claude.com/docs/en/slash-commands)
 - [GTFS Specification](https://gtfs.org/)
-- [Project Repository](https://github.com/imad-collab/ptv_transit)
+- [Project Repository](https://github.com/caprihan/PTV_Assistant)
 
 ---
 

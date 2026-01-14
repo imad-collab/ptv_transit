@@ -46,7 +46,7 @@ This project uses **12-hour rotating shifts** between two developers across time
 
 A Python-based multi-modal journey planner for Melbourne's public transport network using PTV's GTFS datasets.
 
-**Repository**: https://github.com/imad-collab/ptv_transit
+**Repository**: https://github.com/caprihan/PTV_Assistant
 **Branch**: main
 
 ### Current Status (Update after each phase)

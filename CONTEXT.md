@@ -1,7 +1,7 @@
 # Project Context - Resume Point
 
 **Date**: 2026-01-14
-**Repository**: https://github.com/imad-collab/ptv_transit
+**Repository**: https://github.com/caprihan/PTV_Assistant
 **Branch**: main
 **Last Commit**: `b04e70c` - "Update find_journey.py with Phase 5 realtime integration"
 
@@ -192,7 +192,7 @@ d51f06b Phase 4: Multi-Modal Routing Support ✅
 ```
 
 ### Remote Repository
-- **URL**: https://github.com/imad-collab/ptv_transit.git
+- **URL**: https://github.com/caprihan/PTV_Assistant.git
 - **Status**: All commits pushed
 - **Branch**: main (tracking origin/main)
 
@@ -320,7 +320,7 @@ These are intentional simplifications for Phase 1. Will be addressed in future p
    - No, not started yet. Phase 2 is next.
 
 4. **"Did my progress commit on GitHub repository?"**
-   - Yes! ✅ All pushed to https://github.com/imad-collab/ptv_transit
+   - Yes! ✅ All pushed to https://github.com/caprihan/PTV_Assistant
 
 ---
 
@@ -366,7 +366,7 @@ A journey planner that answers queries like:
 
 ## Contact & Resources
 
-- **Repository**: https://github.com/imad-collab/ptv_transit
+- **Repository**: https://github.com/caprihan/PTV_Assistant
 - **PTV Data**: https://opendata.transport.vic.gov.au/
 - **GTFS Spec**: https://gtfs.org/
 - **GTFS Realtime**: https://developers.google.com/transit/gtfs-realtime
