@@ -5,7 +5,7 @@ This module defines the structure for journey results including
 individual journey legs and complete journey itineraries.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 from datetime import datetime, timedelta
 
@@ -34,6 +34,19 @@ class Leg:
 
     # Number of stops between origin and destination (including both)
     num_stops: int = 0
+
+    # Realtime fields (Phase 5)
+    scheduled_departure_time: Optional[str] = None  # For realtime comparison
+    actual_departure_time: Optional[str] = None  # With delay applied
+    scheduled_arrival_time: Optional[str] = None  # For realtime comparison
+    actual_arrival_time: Optional[str] = None  # With delay applied
+
+    departure_delay_seconds: int = 0  # Negative = early, positive = late
+    arrival_delay_seconds: int = 0
+    is_cancelled: bool = False
+
+    platform_name: Optional[str] = None  # "Platform 5", "Track 1"
+    has_realtime_data: bool = False  # Whether realtime info is available
 
     def __post_init__(self):
         """Validate and convert types."""
@@ -102,6 +115,15 @@ class Journey:
     arrival_time: str    # HH:MM:SS format
 
     legs: List[Leg]
+
+    # Realtime fields (Phase 5)
+    actual_departure_time: Optional[str] = None  # With delays applied
+    actual_arrival_time: Optional[str] = None  # With delays applied
+    total_delay_seconds: int = 0  # Sum of all delays
+    has_realtime_data: bool = False  # Any leg has realtime info
+    is_realtime_valid: bool = True  # Is journey still feasible?
+    invalidity_reason: Optional[str] = None  # Why journey is no longer valid
+    journey_alerts: List[str] = field(default_factory=list)  # Service alerts
 
     def __post_init__(self):
         """Validate journey data."""
@@ -200,6 +222,38 @@ class Journey:
 
         return wait_times
 
+    def get_delay_summary(self) -> str:
+        """
+        Get human-readable delay summary.
+
+        Returns:
+            String like "5 min delay" or "On time" or "2 min early"
+        """
+        if not self.has_realtime_data:
+            return "No realtime data"
+
+        if self.total_delay_seconds == 0:
+            return "On time"
+
+        delay_mins = abs(self.total_delay_seconds) // 60
+        if self.total_delay_seconds > 0:
+            return f"{delay_mins} min delay"
+        else:
+            return f"{delay_mins} min early"
+
+    def has_significant_delays(self, threshold_minutes: int = 5) -> bool:
+        """
+        Check if delays exceed threshold.
+
+        Args:
+            threshold_minutes: Delay threshold in minutes (default: 5)
+
+        Returns:
+            True if total delay exceeds threshold
+        """
+        delay_mins = abs(self.total_delay_seconds) // 60
+        return delay_mins >= threshold_minutes
+
     def format_summary(self) -> str:
         """
         Format journey as a human-readable summary string.
@@ -209,20 +263,55 @@ class Journey:
         """
         lines = []
         lines.append(f"Journey: {self.origin_stop_name} → {self.destination_stop_name}")
-        lines.append(f"Departure: {self.departure_time}")
-        lines.append(f"Arrival: {self.arrival_time}")
+
+        # Show scheduled and actual times if realtime data available
+        if self.has_realtime_data and self.actual_departure_time:
+            lines.append(f"Departure: {self.departure_time} → {self.actual_departure_time}")
+        else:
+            lines.append(f"Departure: {self.departure_time}")
+
+        if self.has_realtime_data and self.actual_arrival_time:
+            lines.append(f"Arrival: {self.arrival_time} → {self.actual_arrival_time}")
+        else:
+            lines.append(f"Arrival: {self.arrival_time}")
+
         lines.append(f"Duration: {self.format_duration()}")
         lines.append(f"Transfers: {self.num_transfers}")
+
+        # Add realtime status
+        if self.has_realtime_data:
+            lines.append(f"Status: {self.get_delay_summary()}")
+            if not self.is_realtime_valid:
+                lines.append(f"⚠️  INVALID: {self.invalidity_reason}")
+
         lines.append("")
 
         for i, leg in enumerate(self.legs, 1):
             lines.append(f"Leg {i}:")
             lines.append(f"  {leg.from_stop_name} → {leg.to_stop_name}")
             lines.append(f"  Mode: {leg.get_mode_name()}")
-            lines.append(f"  Depart: {leg.departure_time}  Arrive: {leg.arrival_time}")
+
+            # Show realtime times if available
+            if leg.has_realtime_data:
+                if leg.actual_departure_time and leg.actual_arrival_time:
+                    lines.append(f"  Depart: {leg.departure_time} → {leg.actual_departure_time}  "
+                               f"Arrive: {leg.arrival_time} → {leg.actual_arrival_time}")
+                    if leg.departure_delay_seconds != 0:
+                        delay_mins = abs(leg.departure_delay_seconds) // 60
+                        status = "delay" if leg.departure_delay_seconds > 0 else "early"
+                        lines.append(f"  ⚠️  {delay_mins} min {status}")
+                else:
+                    lines.append(f"  Depart: {leg.departure_time}  Arrive: {leg.arrival_time}")
+            else:
+                lines.append(f"  Depart: {leg.departure_time}  Arrive: {leg.arrival_time}")
+
             lines.append(f"  Duration: {leg.format_duration()}")
             if leg.route_name:
                 lines.append(f"  Route: {leg.route_name}")
+            if leg.platform_name:
+                lines.append(f"  Platform: {leg.platform_name}")
+            if leg.is_cancelled:
+                lines.append(f"  ❌ CANCELLED")
             if not leg.is_transfer:
                 lines.append(f"  Stops: {leg.num_stops}")
 
