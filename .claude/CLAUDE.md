@@ -13,6 +13,10 @@ This project uses **12-hour rotating shifts** between two developers across time
 |-----------|--------------|----------|--------|
 | **Gaurav** | Claude Pro Max | Melbourne (AEST/AEDT) | @gauravcaprihan |
 | **Imad** | Claude Pro | [Timezone TBD] | @imad-collab |
+| **Kasheef** | Claude Pro | [Timezone TBD] | @mzurkashef |
+| **Banibrata** | Claude Pro | [Timezone TBD] | @DevelopBG |
+
+
 
 ### Mandatory Workflow
 
